@@ -27,6 +27,9 @@ namespace Praktikum
 
         public static int counter = 0;
 
+        public string Captain;
+        public bool cekCaptain;
+
         private void FormViewPemain_Load(object sender, EventArgs e)
         {
 
@@ -65,6 +68,7 @@ namespace Praktikum
             comboBoxNation.DisplayMember = "Nama Negara";
             comboBoxTeam.DisplayMember = "Nama Team";
 
+
             IsiDataPemain(0);
 
         }
@@ -78,7 +82,6 @@ namespace Praktikum
             comboBoxTeam.Text = dtTypePemain.Rows[Posisi][5].ToString();
             numericUpDownTeamNum.Text = dtTypePemain.Rows[Posisi][7].ToString();
             PosisiSekarang = Posisi;
-
 
         }
 
@@ -146,14 +149,53 @@ namespace Praktikum
             }
             else
             {
-                string sqlUpdateQuery = "UPDATE player SET('" + tBox_ID.Text + "', '" + tBox_Nama.Text + "', '" + dateTimePickerBirthDate.Value.ToString("yyyyMMdd") + "', '" + comboBoxNation.SelectedValue.ToString() + "', '" + comboBoxTeam.SelectedValue.ToString() + "', '" + numericUpDownTeamNum.Value.ToString() + "' where player_id = '" + tBox_ID.Text + "'";
-                //sqlConnect.Open();
+                string sqlUpdateQuery = "UPDATE player SET player_id = '" + tBox_ID.Text + "', player_name = '" + tBox_Nama.Text + "', birthdate = '" + dateTimePickerBirthDate.Value.ToString("yyyy-MM-dd") + "', nationality_id = '" + comboBoxNation.SelectedValue.ToString() + "',team_id = '" + comboBoxTeam.SelectedValue.ToString() + "', team_number = '" + numericUpDownTeamNum.Value.ToString() + "' where player_id = '" + tBox_ID.Text + "'";
+                sqlConnect.Open();
                 sqlCommand = new MySqlCommand(sqlUpdateQuery, sqlConnect);
                 sqlCommand.ExecuteNonQuery();
-                //sqlConnect.Close();
+                sqlConnect.Close();
                 MessageBox.Show("Data pelajar baru bernama " + tBox_Nama.Text + " berhasil di Update.");
             }
-            
+
+            sqlQuery = "select p.player_id as `Player`, p.player_name as `Player Name`, p.birthdate as `Birthdate`, n.nation as `Nationality`, n.nationality_id as `Nationality ID`, t.team_name as `Team`, t.team_id as `Team ID`,p.team_number as `Team Number` from player p, nationality n, team t where n.nationality_id = p.nationality_id and t.team_id = p.team_id";
+            dtTypePemain = new DataTable();
+            sqlCommand = new MySqlCommand(sqlQuery, sqlConnect);
+            sqlAdapter = new MySqlDataAdapter(sqlCommand);
+            sqlAdapter.Fill(dtTypePemain);
+
+
+            sqlQuery = "SELECT nation as 'Nama Negara', nationality_id FROM nationality";
+            DataTable dtNationalitycBox = new DataTable();
+            sqlCommand = new MySqlCommand(sqlQuery, sqlConnect);
+            sqlAdapter = new MySqlDataAdapter(sqlCommand);
+            sqlAdapter.Fill(dtNationalitycBox);
+
+            sqlQuery = "SELECT team_name as 'Nama Team', team_id FROM team";
+            DataTable dtTeamcBox = new DataTable();
+            sqlCommand = new MySqlCommand(sqlQuery, sqlConnect);
+            sqlAdapter = new MySqlDataAdapter(sqlCommand);
+            sqlAdapter.Fill(dtTeamcBox);
+
+            comboBoxNation.DataSource = dtNationalitycBox;
+            comboBoxTeam.DataSource = dtTeamcBox;
+
+            comboBoxNation.ValueMember = "nationality_id";
+            comboBoxTeam.ValueMember = "team_id";
+
+            comboBoxNation.DisplayMember = "Nama Negara";
+            comboBoxTeam.DisplayMember = "Nama Team";
+
+
+
+            comboBoxNation.ValueMember = "nationality_id";
+            comboBoxTeam.ValueMember = "team_id";
+
+            comboBoxNation.DisplayMember = "Nama Negara";
+            comboBoxTeam.DisplayMember = "Nama Team";
+
+
+            IsiDataPemain(PosisiSekarang);
+
         }
 
         private void btn_Cancel_Click(object sender, EventArgs e)
